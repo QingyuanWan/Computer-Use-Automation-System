@@ -23,8 +23,9 @@ server-rendered banking sandbox.
 
 ## Keyless walkthrough — no API key required
 
-Everything in this section runs without an Anthropic key. Test accounts are seeded automatically into a
-gitignored registry (`test_data/parabank_credentials.json`); you never edit them. **ParaBank purges seeded
+Everything in this section runs without an Anthropic key. **Keyless is not offline, though** — every command
+here still drives the live ParaBank site over the network; only the model API key is optional. Test accounts are
+seeded automatically into a gitignored registry (`test_data/parabank_credentials.json`); you never edit them. **ParaBank purges seeded
 accounts every 30–60 minutes** — `run_capability.py` runs a login pre-flight and auto-reseeds when they go stale
 (the lower-level `python -m src.cli` does *not*, which is why the launcher steps below keep the raw-CLI ones on
 fresh credentials).
@@ -49,29 +50,33 @@ without explicit consent:
 ```bash
 python scripts/run_capability.py --artifact-name transfer_funds
 ```
-Expected: `REFUSED … Re-run with --i-understand-mutating`, exit 1. To actually move $10 checking→savings:
+Expected: `REFUSED … Re-run with --i-understand-mutating`, exit 1. **The refusal is the point of this step — the
+gate is what's being demonstrated, and nothing later depends on money actually moving, so this next command is
+optional.** If you want to see the mutation succeed, opt in explicitly to move $10 checking→savings:
 ```bash
 python scripts/run_capability.py --artifact-name transfer_funds --i-understand-mutating
 ```
-Expected: `SUCCESS`, exit 0 — confirm with `--show-accounts`. **Mutating replays change real state every run;
-after ~10 the account exhausts (a loan gets denied) — rerun `--show-accounts` to reseed.**
+Expected: `SUCCESS`, exit 0 — confirm with `--show-accounts`. Each consented run moves real state; if repeated
+runs leave the checking balance low, re-run **step 1** to reseed a fresh account.
 
-**Step 4 — human-in-the-loop (you drive the browser).** `human_input_demo` pauses for a person. It must be the
-**raw CLI** (the launcher is non-interactive and won't wait), and because a `human_input` step is treated as
-mutating it needs consent:
+**Step 4 — human-in-the-loop (you drive the browser).** `human_input_demo` pauses for a person to sign in. It
+must be the **raw CLI** (the launcher is non-interactive and won't wait), and because a `human_input` step is
+treated as mutating it needs consent.
+
+The replay blocks the terminal while it waits for you, so **read the credentials first** — the password is
+generated randomly at seed time, so the gitignored registry is the only source:
+```bash
+python -c "import json;d=json.load(open('test_data/parabank_credentials.json'))['primary'];print('user:',d['username']);print('pass:',d['password'])"
+```
+Then start the interactive replay:
 ```bash
 python -m src.cli replay --artifact-name human_input_demo \
     --caller-params-from-json account_id=primary.checking_id --i-understand-mutating
 ```
-A Chromium window opens on the ParaBank login page with an in-browser panel (a single **Done** button). **Type
-both the username and password** into the login form — the panel prompt mentions only the username, but login
-needs both fields. The password is generated randomly at seed time, so read both current values from the
-gitignored registry:
-```bash
-python -c "import json;d=json.load(open('test_data/parabank_credentials.json'))['primary'];print('user:',d['username']);print('pass:',d['password'])"
-```
-**Do not click Log In** — click **Done**. The system then clicks Log In, navigates, and reads the account; expected
-terminal: `status=success`.
+A Chromium window opens on the ParaBank login page with an in-browser panel (a single **Done** button). The panel
+prompt asks you to type both the username and password into the login form — enter the two values you just read.
+**Do not click Log In** — click **Done**. The system then clicks Log In, navigates, and reads the account;
+expected terminal: `status=success`.
 
 **Step 5 — a business outcome (a result, not a crash).** The captured contract ships in
 `evidence/lookup_checking_balance_replay_20260827_051820/` — a system-emitted `cli_summary.json`, verbatim
@@ -106,12 +111,27 @@ python scripts/run_capability.py --goal "Look up the checking balance" \
 All three caller-params are required (the LLM must authenticate), and `--capability-type` is required with
 `--goal` (a `read`/`mutating` safety label, no default). It takes **~1–3 minutes and roughly $0.20**, and a
 `read` goal does not change account state. It saves `artifacts/my_lookup_probe.yaml` — a throwaway that will then
-show up in `--list-capabilities`; delete it when you're done — and replays it.
+show up in `--list-capabilities`; delete it when you're done — and immediately replays it to validate.
+
+The launcher collapses discovery and that validation replay into a single invocation. To exercise the seam the
+assignment centers on — **discover → typed artifact → independent replay with no model in the loop** — replay the
+artifact it just wrote as its own separate step:
+```bash
+python scripts/run_capability.py --artifact-name my_lookup_probe
+```
+This is the same deterministic, keyless replay path as step 2, now running the capability you just discovered.
 
 **A fresh discovery may print `validated=False` and then a hard failure. This is not a broken setup.** Success
-checkpoints are authored from the phrases the model cites, and a particular phrasing can produce a checkpoint
-that cannot match on replay (checkpoint-phrasing variance, REPORT §Determinism); re-running usually validates.
-The shipped `lookup_checking_balance` is the hand-verified version of exactly this capability.
+checkpoints are authored from the phrases the model cites, and emission sometimes concatenates a captured value
+into a success phrase the page's whitespace makes unmatchable, so two runs of the same goal can validate or not
+on that alone. This is a **disclosed known limitation** with a controlled A/B in
+`evidence/finding_v_checkpoint_flap/`, and typed predicate assertions are the planned fix (REPORT §Determinism,
+forward-plan item 2) — so read a `validated=False` run as expected authoring variance, not something to re-run
+until it passes. The bundled artifacts are the reviewed, corrected examples: the worked-example capabilities
+carry four disclosed hand-edits (two load-bearing for replay — the checkpoint's stable labels and `request_loan`'s
+label-anchored capture), documented inline and in REPORT §Cuts. Separately, `human_input_demo`'s operator prompt
+was hand-corrected to name both login fields — operator-facing text, not replay behaviour. Raw automatic emission
+still has the capture and checkpoint limitations those edits correct.
 
 *Windows PowerShell:* `$` inside a double-quoted `--goal` is read as a variable, so use single quotes for goals
 that contain amounts — `--goal 'Transfer $10 from checking to savings'` — or escape each `$` with a backtick.

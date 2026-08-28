@@ -53,13 +53,18 @@ captures:
       all: false
   export: true
 steps:
+# DISCLOSURE (hand-edit): emission named only the username in this step's prompt/hint, but ParaBank's
+# form login needs both fields; corrected to name username AND password so the operator prompt is
+# self-sufficient. The prompt is shown verbatim in the escalation panel; no code or test depends on the text.
+# This is operator-facing text, not replay behaviour — a separate category from the four worked-example
+# replay hand-edits counted in REPORT §Cuts, and not counted among them.
 - id: step_01
   metadata:
-    escalation_hint: Enter your username into the login form to begin signing in to
-      ParaBank
+    escalation_hint: Enter both your username and password into the login form to begin
+      signing in to ParaBank
   action: human_input
-  prompt: Please type your username into the Username field on the ParaBank login
-    page. Do NOT click Log In.
+  prompt: Please type BOTH your username and password into the login form on the ParaBank
+    login page. Do NOT click Log In.
   reason: credential_request
   timeout_ms: 60000
 - id: step_02

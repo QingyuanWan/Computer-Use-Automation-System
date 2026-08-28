@@ -196,7 +196,7 @@ Still not built (each disclosed inline where it lives):
 - **Regulated data in screenshots** — business-data captures are unmasked; a throwaway username survives text redaction; OCR deferred.
 - **Non-idempotency** — mutating replays change real state and commit before the checkpoint, so a failure cannot prevent the side effect; fixture/rollback deferred.
 - **Per-tenant isolation** — credential registry and allowlist are single flat files, unkeyed (forward-plan item 5).
-- **Worked-example hand-edits** — four (YAML comments; `evidence/pipeline_output_unedited_20260827.yaml`), two load-bearing: the checkpoint's stable labels and `request_loan`'s label-anchored capture.
+- **Worked-example hand-edits** — four (YAML comments; `evidence/pipeline_output_unedited_20260827.yaml`), two load-bearing: the checkpoint's stable labels and `request_loan`'s label-anchored capture. A separate hand-edit corrects `human_input_demo`'s operator prompt to name both login fields — operator-facing text, not replay behaviour, so it is disclosed in that artifact and not counted among these four.
 - **Escalation edges** — `confirm`/`prompt` unhandled; a demo-tuned 60 s human-input timeout; full page observations sent to the Anthropic API.
 
 **What I'd build next** — the core artifact/replay contract before operability at scale, which §7 deprioritizes:
