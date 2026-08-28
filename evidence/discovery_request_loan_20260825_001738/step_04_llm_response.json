@@ -1,0 +1,61 @@
+{
+  "id": "msg_011CeNpcVUh5rHnnvWGMgE4f",
+  "container": null,
+  "content": [
+    {
+      "citations": null,
+      "text": "I can see the loan request form. I need to fill in the loan amount ($500), down payment ($100), and ensure account 17451 is selected. The account 17451 is already selected. Let me fill in the fields.",
+      "type": "text"
+    },
+    {
+      "id": "toolu_01GMmLaa3okiQE7smZXwvWYC",
+      "caller": {
+        "type": "direct"
+      },
+      "input": {
+        "locator": {
+          "role": "textbox",
+          "nth": 0
+        },
+        "value": "500"
+      },
+      "name": "type_text",
+      "type": "tool_use"
+    },
+    {
+      "id": "toolu_01Puv3JooWs1FWJHY7ujDYbe",
+      "caller": {
+        "type": "direct"
+      },
+      "input": {
+        "locator": {
+          "role": "textbox",
+          "nth": 1
+        },
+        "value": "100"
+      },
+      "name": "type_text",
+      "type": "tool_use"
+    }
+  ],
+  "model": "claude-sonnet-4-6",
+  "role": "assistant",
+  "stop_details": null,
+  "stop_reason": "tool_use",
+  "stop_sequence": null,
+  "type": "message",
+  "usage": {
+    "cache_creation": {
+      "ephemeral_1h_input_tokens": 0,
+      "ephemeral_5m_input_tokens": 1179
+    },
+    "cache_creation_input_tokens": 1179,
+    "cache_read_input_tokens": 6369,
+    "inference_geo": "global",
+    "input_tokens": 1,
+    "output_tokens": 199,
+    "output_tokens_details": null,
+    "server_tool_use": null,
+    "service_tier": "standard"
+  }
+}

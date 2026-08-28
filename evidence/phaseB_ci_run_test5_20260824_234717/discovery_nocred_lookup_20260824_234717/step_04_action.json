@@ -1,0 +1,11 @@
+[
+  {
+    "name": "read_text",
+    "input": {
+      "locator": {
+        "role": "table",
+        "nth": 0
+      }
+    }
+  }
+]

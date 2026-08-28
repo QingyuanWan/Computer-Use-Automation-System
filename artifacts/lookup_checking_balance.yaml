@@ -1,0 +1,142 @@
+version: 0.1.0
+metadata:
+  capability_name: lookup_checking_balance
+  capability_type: read
+  sample_invocation:
+    username: $json:primary.username
+    password: $json:primary.password
+    account_id: $json:primary.checking_id
+  validated: true
+  discovered_by_model: claude-sonnet-4-6
+  target_app_hint: parabank.parasoft.com
+parameters:
+  type: object
+  # DISCLOSURE (hand-edit): the `description:` fields below were added by hand for caller introspection;
+  # emission does NOT emit a parameter `description` field. See REPORT §Cuts and
+  # evidence/pipeline_output_unedited_20260827.yaml (raw pipeline output, no descriptions).
+  properties:
+    username:
+      type: string
+      sensitive: true
+      description: ParaBank login username for the account holder.
+    password:
+      type: string
+      sensitive: true
+      description: ParaBank login password (credential; redacted in evidence, never persisted as a literal).
+    account_id:
+      type: string
+      description: The checking account number to look up (a caller-supplied member/account id).
+  required:
+  - account_id
+  - password
+  - username
+captures:
+- name: account_type
+  type: string
+  source_step: step_04
+  source:
+    locator:
+      strategy: css
+      css: body
+    extract:
+      pattern: CHECKING
+      from: text
+      all: false
+  export: true
+- name: balance
+  type: string
+  source_step: step_04
+  source:
+    locator:
+      strategy: css
+      css: body
+    extract:
+      pattern: \$[\d,]+\.\d{2}
+      from: text
+      all: false
+  export: true
+- name: available
+  type: string
+  source_step: step_04
+  source:
+    locator:
+      strategy: css
+      css: body
+    extract:
+      pattern: \$[\d,]+\.\d{2}
+      from: text
+      all: false
+  export: true
+steps:
+- id: step_01_0
+  action: type_text
+  locator:
+    strategy: role_nth
+    role: textbox
+    index: 0
+  value: '{{username}}'
+- id: step_01_1
+  action: type_text
+  locator:
+    strategy: role_nth
+    role: textbox
+    index: 1
+  value: '{{password}}'
+- id: step_02
+  action: click
+  locator:
+    strategy: role_name
+    role: button
+    name: Log In
+- id: step_03
+  checkpoint:
+    success:
+      required_phrases:
+      - Account Details
+      - 'Account Type:'
+      - 'Balance:'
+      target: '#rightPanel'
+    # DISCLOSURE (hand-edit): this account_not_found branch was hand-parameterized to {{account_id}}; emission
+    # emits the INJECTED LITERAL instead (e.g. 'Could not find account # 999999999') because the injected value
+    # is not a caller parameter and is never reverse-parameterized. A second branch, malformed_account_rejected
+    # (which emission also emits), was removed here: after templating it matches identical ParaBank text and
+    # could never be uniquely reported. See REPORT §Cuts and evidence/pipeline_output_unedited_20260827.yaml.
+    expected_outcomes:
+    - name: account_not_found
+      required_phrases:
+      - 'Could not find account # {{account_id}}'
+    wait_ms: 5000
+    poll_interval_ms: 500
+  metadata:
+    escalation_hint: Open the checking account's activity page to view its details
+      and balance
+  action: navigate
+  url: https://parabank.parasoft.com/parabank/activity.htm?id={{account_id}}
+- id: step_04
+  checkpoint:
+    # DISCLOSURE (hand-edit): emission templated {{account_type}}/{{balance}} into this step's success phrases —
+    # i.e. the checkpoint asserted the very values this step binds as captures (near-tautological). The curated
+    # version asserts stable page labels instead. See REPORT §Cuts and evidence/pipeline_output_unedited_20260827.yaml.
+    success:
+      required_phrases:
+      - 'Account Type:'
+      - 'Balance:'
+      target: '#rightPanel'
+    # DISCLOSURE (hand-edit): this account_not_found branch was hand-parameterized to {{account_id}}; emission
+    # emits the INJECTED LITERAL instead (e.g. 'Could not find account # 999999999') because the injected value
+    # is not a caller parameter and is never reverse-parameterized. A second branch, malformed_account_rejected
+    # (which emission also emits), was removed here: after templating it matches identical ParaBank text and
+    # could never be uniquely reported. See REPORT §Cuts and evidence/pipeline_output_unedited_20260827.yaml.
+    expected_outcomes:
+    - name: account_not_found
+      required_phrases:
+      - 'Could not find account # {{account_id}}'
+    wait_ms: 5000
+    poll_interval_ms: 500
+  metadata:
+    escalation_hint: Read the current balance displayed for the checking account
+  action: read_text
+  locator:
+    strategy: role_name
+    role: cell
+    name: 'Balance:'

@@ -1,0 +1,13 @@
+{
+  "command": "replay",
+  "capability_name": "manual_read2",
+  "status": "success",
+  "outcome_name": null,
+  "reason": null,
+  "outputs": {
+    "account_type": "CHECKING",
+    "balance": "$350.50"
+  },
+  "operator_note": null,
+  "evidence_dir": "evidence/manual_read2_replay_20260827_184727"
+}

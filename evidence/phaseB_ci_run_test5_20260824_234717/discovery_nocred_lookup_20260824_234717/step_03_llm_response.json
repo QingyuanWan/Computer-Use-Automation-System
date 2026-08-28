@@ -1,0 +1,42 @@
+{
+  "id": "msg_011CeNnJ3YEkfM5Xk7VXyX9D",
+  "container": null,
+  "content": [
+    {
+      "citations": null,
+      "text": "I'm logged in successfully. The accounts overview table appears to be loading. Let me navigate directly to the checking account with the provided account ID.",
+      "type": "text"
+    },
+    {
+      "id": "toolu_01EGrqLETMTgECRMKrTBbmjB",
+      "caller": {
+        "type": "direct"
+      },
+      "input": {
+        "url": "https://parabank.parasoft.com/parabank/activity.htm?id=16785"
+      },
+      "name": "navigate",
+      "type": "tool_use"
+    }
+  ],
+  "model": "claude-sonnet-4-6",
+  "role": "assistant",
+  "stop_details": null,
+  "stop_reason": "tool_use",
+  "stop_sequence": null,
+  "type": "message",
+  "usage": {
+    "cache_creation": {
+      "ephemeral_1h_input_tokens": 0,
+      "ephemeral_5m_input_tokens": 1136
+    },
+    "cache_creation_input_tokens": 1136,
+    "cache_read_input_tokens": 5236,
+    "inference_geo": "global",
+    "input_tokens": 1,
+    "output_tokens": 101,
+    "output_tokens_details": null,
+    "server_tool_use": null,
+    "service_tier": "standard"
+  }
+}

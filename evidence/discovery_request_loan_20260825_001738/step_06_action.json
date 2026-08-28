@@ -1,0 +1,8 @@
+[
+  {
+    "name": "request_screenshot",
+    "input": {
+      "reason": "Need to see the current state of the loan request page after clicking Apply Now"
+    }
+  }
+]

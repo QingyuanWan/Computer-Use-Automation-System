@@ -1,0 +1,56 @@
+{
+  "id": "msg_011CeNpe3v6x8L9hNZT6hGm8",
+  "container": null,
+  "content": [
+    {
+      "citations": null,
+      "text": "The loan request has been successfully processed! The page shows:\n\n- **Heading**: \"Loan Request Processed\"\n- **Status**: Approved\n- **Message**: \"Congratulations, your loan has been approved.\"\n- **New account number**: 19005",
+      "type": "text"
+    },
+    {
+      "id": "toolu_015pxtLyh9AyDhYLh44W5bSw",
+      "caller": {
+        "type": "direct"
+      },
+      "input": {
+        "result": {
+          "status": "Loan Approved",
+          "loan_amount": "$500",
+          "down_payment": "$100",
+          "from_account": "17451",
+          "new_account_number": "19005",
+          "message": "Congratulations, your loan has been approved."
+        },
+        "success_observed_phrases": [
+          "Loan Request Processed",
+          "Status:",
+          "Approved",
+          "Congratulations, your loan has been approved.",
+          "Your new account number:"
+        ]
+      },
+      "name": "finish",
+      "type": "tool_use"
+    }
+  ],
+  "model": "claude-sonnet-4-6",
+  "role": "assistant",
+  "stop_details": null,
+  "stop_reason": "tool_use",
+  "stop_sequence": null,
+  "type": "message",
+  "usage": {
+    "cache_creation": {
+      "ephemeral_1h_input_tokens": 0,
+      "ephemeral_5m_input_tokens": 2385
+    },
+    "cache_creation_input_tokens": 2385,
+    "cache_read_input_tokens": 10203,
+    "inference_geo": "global",
+    "input_tokens": 1,
+    "output_tokens": 220,
+    "output_tokens_details": null,
+    "server_tool_use": null,
+    "service_tier": "standard"
+  }
+}

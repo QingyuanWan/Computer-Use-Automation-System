@@ -1,0 +1,1 @@
+[run_capability] SUCCESS — outputs={'account_type': 'CHECKING', 'balance': '$415.50', 'available': '$415.50'}

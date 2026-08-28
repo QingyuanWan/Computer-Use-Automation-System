@@ -1,0 +1,43 @@
+{
+  "id": "msg_011CeNnHdyQXkW8TUUtP1XBq",
+  "container": null,
+  "content": [
+    {
+      "citations": null,
+      "text": "I'll help you log in and check the checking account balance. Let me start by getting the credentials.",
+      "type": "text"
+    },
+    {
+      "id": "toolu_01Jg9jMhN4p7kStKDUQdSQbN",
+      "caller": {
+        "type": "direct"
+      },
+      "input": {
+        "prompt": "Please enter the username for ParaBank in the Username field \u2014 do not click Log In.",
+        "reason": "credential_request"
+      },
+      "name": "request_human_input",
+      "type": "tool_use"
+    }
+  ],
+  "model": "claude-sonnet-4-6",
+  "role": "assistant",
+  "stop_details": null,
+  "stop_reason": "tool_use",
+  "stop_sequence": null,
+  "type": "message",
+  "usage": {
+    "cache_creation": {
+      "ephemeral_1h_input_tokens": 0,
+      "ephemeral_5m_input_tokens": 3820
+    },
+    "cache_creation_input_tokens": 3820,
+    "cache_read_input_tokens": 0,
+    "inference_geo": "global",
+    "input_tokens": 3,
+    "output_tokens": 113,
+    "output_tokens_details": null,
+    "server_tool_use": null,
+    "service_tier": "standard"
+  }
+}

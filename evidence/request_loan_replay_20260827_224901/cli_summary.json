@@ -1,0 +1,13 @@
+{
+  "command": "replay",
+  "capability_name": "request_loan",
+  "status": "success",
+  "outcome_name": null,
+  "reason": null,
+  "outputs": {
+    "new_account_number": "19671",
+    "message": "Congratulations, your loan has been approved."
+  },
+  "operator_note": null,
+  "evidence_dir": "evidence/request_loan_replay_20260827_224901"
+}

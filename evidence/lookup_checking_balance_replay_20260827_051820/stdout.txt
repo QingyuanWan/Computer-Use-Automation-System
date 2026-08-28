@@ -1,0 +1,2 @@
+[replay] capability=lookup_checking_balance status=business_outcome
+         outcome=account_not_found observed='Error!\n\nCould not find account # 999999999'

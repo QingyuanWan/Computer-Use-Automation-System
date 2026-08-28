@@ -1,0 +1,14 @@
+{
+  "escalation_at_step": "step_03_nav",
+  "reason": "checkpoint_timeout",
+  "timestamp": "2026-08-25T03:40:29.518949+00:00",
+  "human_outcome": "takeover_resume",
+  "duration_s": 0.412,
+  "dom_diff_summary": {
+    "added": 0,
+    "removed": 0,
+    "mutated": 0,
+    "by_role": {}
+  },
+  "operator_note": null
+}

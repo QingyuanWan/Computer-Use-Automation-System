@@ -1,0 +1,54 @@
+{
+  "id": "msg_011CeNnJXKauFmQAyfpJiY7X",
+  "container": null,
+  "content": [
+    {
+      "citations": null,
+      "text": "I have all the information needed. The checking account details are clearly visible:\n\n- **Account Number:** 16785\n- **Account Type:** CHECKING\n- **Balance:** $415.50\n- **Available:** $415.50",
+      "type": "text"
+    },
+    {
+      "id": "toolu_014cxk8A3mZKaGBR77AdMUDV",
+      "caller": {
+        "type": "direct"
+      },
+      "input": {
+        "result": {
+          "account_id": "16785",
+          "account_type": "CHECKING",
+          "balance": "$415.50",
+          "available": "$415.50"
+        },
+        "success_observed_phrases": [
+          "Account Details",
+          "Account Type:",
+          "CHECKING",
+          "Balance:",
+          "Account Number:"
+        ]
+      },
+      "name": "finish",
+      "type": "tool_use"
+    }
+  ],
+  "model": "claude-sonnet-4-6",
+  "role": "assistant",
+  "stop_details": null,
+  "stop_reason": "tool_use",
+  "stop_sequence": null,
+  "type": "message",
+  "usage": {
+    "cache_creation": {
+      "ephemeral_1h_input_tokens": 0,
+      "ephemeral_5m_input_tokens": 1611
+    },
+    "cache_creation_input_tokens": 1611,
+    "cache_read_input_tokens": 7847,
+    "inference_geo": "global",
+    "input_tokens": 1,
+    "output_tokens": 175,
+    "output_tokens_details": null,
+    "server_tool_use": null,
+    "service_tier": "standard"
+  }
+}

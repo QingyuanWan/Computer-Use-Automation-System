@@ -1,0 +1,22 @@
+[
+  {
+    "name": "finish",
+    "input": {
+      "result": {
+        "status": "Loan Approved",
+        "loan_amount": "$500",
+        "down_payment": "$100",
+        "from_account": "17451",
+        "new_account_number": "19005",
+        "message": "Congratulations, your loan has been approved."
+      },
+      "success_observed_phrases": [
+        "Loan Request Processed",
+        "Status:",
+        "Approved",
+        "Congratulations, your loan has been approved.",
+        "Your new account number:"
+      ]
+    }
+  }
+]

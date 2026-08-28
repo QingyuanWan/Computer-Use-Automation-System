@@ -1,0 +1,14 @@
+{
+  "escalation_at_step": "(planned)",
+  "reason": "credential_request",
+  "timestamp": "2026-08-25T03:47:21.787150+00:00",
+  "human_outcome": "planned_done",
+  "duration_s": 0.355,
+  "dom_diff_summary": {
+    "added": 0,
+    "removed": 0,
+    "mutated": 0,
+    "by_role": {}
+  },
+  "operator_note": null
+}

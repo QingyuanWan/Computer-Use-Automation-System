@@ -1,0 +1,126 @@
+version: 0.1.0
+metadata:
+  capability_name: request_loan
+  capability_type: mutating
+  sample_invocation:
+    username: $json:primary.username
+    password: $json:primary.password
+    from_account_id: $json:primary.checking_id
+  # validated=false is CORRECT here, not a broken pipeline: a mutating capability cannot be auto-validated by
+  # replaying it — the validation replay IS the mutation (it would open a real loan again). See REPORT §Determinism.
+  validated: false
+  validation_skip_reason: mutating_not_auto_validatable
+  discovered_by_model: claude-sonnet-4-6
+  target_app_hint: parabank.parasoft.com
+parameters:
+  type: object
+  properties:
+    username:
+      type: string
+      sensitive: true
+    password:
+      type: string
+      sensitive: true
+    from_account_id:
+      type: string
+  required:
+  - from_account_id
+  - password
+  - username
+captures:
+# DISCLOSURE (hand-edit): emission produces `strategy: css, css: body` + `pattern: \d+` for this capture
+# (build_captures hardcodes css:body with no source-element recording — REPORT §Cuts / forward-plan item 4).
+# That grabbed the FIRST digit-run in the whole body, which was the funding CHECKING account (90489), NOT the
+# new loan account — verified live. Root cause is two-fold: css:body reads the whole page, AND the capture binds
+# right after the "Apply Now" click (before the checkpoint), i.e. BEFORE ParaBank's AJAX renders the loan result,
+# so the only account number on the page is the "From account #" dropdown (90489). A scoped element locator on
+# the new-account LINK does NOT work: the engine resolves a capture's element locator ONCE with no
+# element-presence poll (unlike checkpoints), so the not-yet-rendered link matches 0 elements. This hand-edit
+# keeps css:body (always resolvable; the existing regex-poll waits for the late AJAX render) but ANCHORS the
+# pattern to the "Your new account number:" label — text that appears only in the rendered confirmation — so it
+# extracts the digits of the NEW loan account and can never match the funding dropdown. REPORT §Heterogeneity/§Cuts.
+- name: new_account_number
+  type: string
+  source_step: step_05
+  source:
+    locator:
+      strategy: css
+      css: body
+    extract:
+      pattern: 'Your new account number:\s*(\d+)'
+      from: text
+      all: false
+  export: true
+- name: message
+  type: string
+  source_step: step_05
+  source:
+    locator:
+      strategy: css
+      css: body
+    extract:
+      pattern: Congratulations,\ your\ loan\ has\ been\ approved\.
+      from: text
+      all: false
+  export: true
+steps:
+- id: step_01_0
+  action: type_text
+  locator:
+    strategy: role_nth
+    role: textbox
+    index: 0
+  value: '{{username}}'
+- id: step_01_1
+  action: type_text
+  locator:
+    strategy: role_nth
+    role: textbox
+    index: 1
+  value: '{{password}}'
+- id: step_02
+  action: click
+  locator:
+    strategy: role_name
+    role: button
+    name: Log In
+- id: step_03
+  action: click
+  locator:
+    strategy: role_name
+    role: link
+    name: Request Loan
+- id: step_04_0
+  action: type_text
+  locator:
+    strategy: role_nth
+    role: textbox
+    index: 0
+  value: '500'
+- id: step_04_1
+  action: type_text
+  locator:
+    strategy: role_nth
+    role: textbox
+    index: 1
+  value: '100'
+- id: step_05
+  checkpoint:
+    success:
+      required_phrases:
+      - Loan Request Processed
+      - 'Status:'
+      - Approved
+      - '{{message}}'
+      - 'Your new account number:'
+      target: '#rightPanel'
+    wait_ms: 5000
+    poll_interval_ms: 500
+  metadata:
+    escalation_hint: Submit the loan application for $500 with a $100 down payment
+      using the checking account as the funding source and confirm approval
+  action: click
+  locator:
+    strategy: role_name
+    role: button
+    name: Apply Now

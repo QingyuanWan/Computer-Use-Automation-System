@@ -1,0 +1,9 @@
+[
+  {
+    "name": "request_human_input",
+    "input": {
+      "prompt": "Please enter the username for ParaBank in the Username field \u2014 do not click Log In.",
+      "reason": "credential_request"
+    }
+  }
+]

@@ -1,0 +1,20 @@
+[
+  {
+    "name": "finish",
+    "input": {
+      "result": {
+        "account_id": "16785",
+        "account_type": "CHECKING",
+        "balance": "$415.50",
+        "available": "$415.50"
+      },
+      "success_observed_phrases": [
+        "Account Details",
+        "Account Type:",
+        "CHECKING",
+        "Balance:",
+        "Account Number:"
+      ]
+    }
+  }
+]

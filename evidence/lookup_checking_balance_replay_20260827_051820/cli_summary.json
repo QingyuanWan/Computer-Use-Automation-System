@@ -1,0 +1,10 @@
+{
+  "command": "replay",
+  "capability_name": "lookup_checking_balance",
+  "status": "business_outcome",
+  "outcome_name": "account_not_found",
+  "reason": null,
+  "outputs": {},
+  "operator_note": null,
+  "evidence_dir": "evidence/lookup_checking_balance_replay_20260827_051820"
+}

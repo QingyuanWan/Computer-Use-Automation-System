@@ -1,0 +1,67 @@
+# Secrets —— 绝不提交
+.env
+.env.*
+!.env.example
+
+# ParaBank test-data credentials (auto-seeded fixture data; the committed .example documents the shape).
+# Glob covers the live store AND any per-tenant / backup variants (e.g. *.tenant_a.backup.json); the
+# `.json.example` template ends in .example (not .json) so it is NOT matched and stays committed.
+test_data/parabank_credentials*.json
+
+# Python 依赖 / 构建产物
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+env/
+build/
+dist/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Node 依赖 / 构建产物
+node_modules/
+
+# Playwright 缓存 / 产物
+.cache/
+ms-playwright/
+playwright-report/
+test-results/
+.playwright/
+
+# 编辑器 / 系统
+.DS_Store
+.idea/
+.vscode/
+
+# 探针脚手架 —— throwaway,交付前删除(见 CLAUDE.md 收尾清理)
+probe_parabank.py
+probe_output.log
+experiment_discovery.py
+experiment_discovery_transfer.py
+experiment_fixture_discovery.py
+integration_probe.py
+registry_integration_probe.py
+experiments/
+
+# Internal working notes and scratch artifacts — not part of the shipped deliverable
+docs/final_cleanup_and_fix_review.md
+docs/final_polish_review.md
+docs/report_final_polish_review.md
+docs/report_qa_final_review.md
+docs/report_qa_final_v2.md
+docs/repo_ground_truth_audit.md
+docs/schema-draft.md
+test_artifacts/
+
+# Internal working notes & harness config — not part of the deliverable.
+# decisions.md is deliberately KEPT (REPORT cites its ADRs so a reviewer can resolve them);
+# everything else under .claude/memory/ and the harness config are excluded.
+/CLAUDE.md
+.claude/settings.json
+.claude/settings.local.json
+.claude/skills/
+.claude/memory/*
+!.claude/memory/decisions.md

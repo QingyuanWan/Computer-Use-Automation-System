@@ -1,0 +1,22 @@
+[
+  {
+    "name": "type_text",
+    "input": {
+      "locator": {
+        "role": "textbox",
+        "nth": 0
+      },
+      "value": "500"
+    }
+  },
+  {
+    "name": "type_text",
+    "input": {
+      "locator": {
+        "role": "textbox",
+        "nth": 1
+      },
+      "value": "100"
+    }
+  }
+]

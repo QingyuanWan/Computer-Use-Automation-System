@@ -1,0 +1,10 @@
+{
+  "command": "replay",
+  "capability_name": "my_loan",
+  "status": "hard_failure",
+  "outcome_name": null,
+  "reason": "stub_unavailable",
+  "outputs": {},
+  "operator_note": null,
+  "evidence_dir": "evidence/my_loan_replay_20260827_165252"
+}

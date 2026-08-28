@@ -1,0 +1,22 @@
+[
+  {
+    "name": "type_text",
+    "input": {
+      "locator": {
+        "role": "textbox",
+        "nth": 0
+      },
+      "value": "itfai_3f777b7c"
+    }
+  },
+  {
+    "name": "type_text",
+    "input": {
+      "locator": {
+        "role": "textbox",
+        "nth": 1
+      },
+      "value": "[REDACTED]"
+    }
+  }
+]

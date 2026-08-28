@@ -1,0 +1,11 @@
+[
+  {
+    "name": "click",
+    "input": {
+      "locator": {
+        "role": "link",
+        "name": "Request Loan"
+      }
+    }
+  }
+]

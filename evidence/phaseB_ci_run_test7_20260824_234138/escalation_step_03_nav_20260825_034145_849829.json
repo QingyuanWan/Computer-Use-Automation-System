@@ -1,0 +1,31 @@
+{
+  "escalation_at_step": "step_03_nav",
+  "reason": "checkpoint_timeout",
+  "timestamp": "2026-08-25T03:41:45.849829+00:00",
+  "human_outcome": "takeover_resume",
+  "duration_s": 0.987,
+  "dom_diff_summary": {
+    "added": 2,
+    "removed": 43,
+    "mutated": 0,
+    "by_role": {
+      "a": 1,
+      "b": -1,
+      "br": -2,
+      "div": -1,
+      "form": -1,
+      "h1": -1,
+      "input": -1,
+      "option": -16,
+      "p": -1,
+      "select": -2,
+      "table": -2,
+      "tbody": -2,
+      "td": -8,
+      "tfoot": 1,
+      "th": -1,
+      "tr": -4
+    }
+  },
+  "operator_note": null
+}

@@ -1,0 +1,45 @@
+{
+  "id": "msg_011CeNpc9vx667qzL3LR4X9C",
+  "container": null,
+  "content": [
+    {
+      "citations": null,
+      "text": "Now let me click the Log In button.",
+      "type": "text"
+    },
+    {
+      "id": "toolu_01PSxinzvmB4jcfSFnr9sM6c",
+      "caller": {
+        "type": "direct"
+      },
+      "input": {
+        "locator": {
+          "role": "button",
+          "name": "Log In"
+        }
+      },
+      "name": "click",
+      "type": "tool_use"
+    }
+  ],
+  "model": "claude-sonnet-4-6",
+  "role": "assistant",
+  "stop_details": null,
+  "stop_reason": "tool_use",
+  "stop_sequence": null,
+  "type": "message",
+  "usage": {
+    "cache_creation": {
+      "ephemeral_1h_input_tokens": 0,
+      "ephemeral_5m_input_tokens": 1429
+    },
+    "cache_creation_input_tokens": 1429,
+    "cache_read_input_tokens": 3872,
+    "inference_geo": "global",
+    "input_tokens": 1,
+    "output_tokens": 74,
+    "output_tokens_details": null,
+    "server_tool_use": null,
+    "service_tier": "standard"
+  }
+}

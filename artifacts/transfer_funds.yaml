@@ -1,0 +1,97 @@
+version: 0.1.0
+metadata:
+  capability_name: transfer_funds
+  capability_type: mutating
+  sample_invocation:
+    username: $json:primary.username
+    password: $json:primary.password
+    from_account_id: $json:primary.checking_id
+    to_account_id: $json:primary.savings_id
+  # validated=false is CORRECT here, not a broken pipeline: a mutating capability cannot be auto-validated by
+  # replaying it — the validation replay IS the mutation (it would move real funds again). See REPORT §Determinism.
+  validated: false
+  validation_skip_reason: mutating_not_auto_validatable
+  discovered_by_model: claude-sonnet-4-6
+  target_app_hint: parabank.parasoft.com
+parameters:
+  type: object
+  properties:
+    username:
+      type: string
+      sensitive: true
+    password:
+      type: string
+      sensitive: true
+    from_account_id:
+      type: string
+    to_account_id:
+      type: string
+  required:
+  - from_account_id
+  - password
+  - to_account_id
+  - username
+captures: []
+steps:
+- id: step_01
+  action: click
+  locator:
+    strategy: role_nth
+    role: textbox
+    index: 0
+- id: step_02
+  action: type_text
+  locator:
+    strategy: role_nth
+    role: textbox
+    index: 0
+  value: '{{username}}'
+- id: step_03
+  action: type_text
+  locator:
+    strategy: role_nth
+    role: textbox
+    index: 1
+  value: '{{password}}'
+- id: step_04
+  action: click
+  locator:
+    strategy: role_name
+    role: button
+    name: Log In
+- id: step_05
+  action: click
+  locator:
+    strategy: role_name
+    role: link
+    name: Transfer Funds
+- id: step_06
+  action: type_text
+  locator:
+    strategy: role_name
+    role: textbox
+  value: '10'
+- id: step_07
+  action: type_text
+  locator:
+    strategy: role_nth
+    role: combobox
+    index: 1
+  value: '{{to_account_id}}'
+- id: step_08
+  checkpoint:
+    success:
+      required_phrases:
+      - Transfer Complete!
+      - See Account Activity for more details.
+      target: '#rightPanel'
+    wait_ms: 5000
+    poll_interval_ms: 500
+  metadata:
+    escalation_hint: Submit the transfer to move $10 from the checking account to
+      the savings account and confirm the 'Transfer Complete' success message appears
+  action: click
+  locator:
+    strategy: role_name
+    role: button
+    name: Transfer

@@ -1,0 +1,4 @@
+ParaBank accounts for itfai_1cf417a9:
+  Account   Type       Balance     Available   
+  16785     CHECKING   $415.50     $415.50     
+  16896     SAVINGS    $100.00     $100.00     

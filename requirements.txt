@@ -1,0 +1,8 @@
+# Runtime + test dependencies (already present in this environment; pinned for reproducibility).
+pydantic>=2.0
+pyyaml>=6.0
+playwright>=1.40
+anthropic>=0.40
+python-dotenv>=1.0
+pytest>=7.0
+pytest-asyncio>=0.23

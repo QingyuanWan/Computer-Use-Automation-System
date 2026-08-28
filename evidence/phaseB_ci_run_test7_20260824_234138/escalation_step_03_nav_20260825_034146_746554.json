@@ -1,0 +1,9 @@
+{
+  "escalation_at_step": "step_03_nav",
+  "reason": "checkpoint_timeout",
+  "timestamp": "2026-08-25T03:41:46.746554+00:00",
+  "human_outcome": "abort",
+  "duration_s": 0.323,
+  "dom_diff_summary": null,
+  "operator_note": null
+}

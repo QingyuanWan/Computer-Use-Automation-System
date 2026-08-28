@@ -1,0 +1,10 @@
+{
+  "command": "replay",
+  "capability_name": "transfer_funds",
+  "status": "hard_failure",
+  "outcome_name": null,
+  "reason": "safety_blocked:mutating_requires_consent",
+  "outputs": {},
+  "operator_note": null,
+  "evidence_dir": "evidence\\transfer_funds_replay_20260825_213213"
+}

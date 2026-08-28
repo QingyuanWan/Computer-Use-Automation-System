@@ -1,0 +1,102 @@
+version: 0.1.0
+metadata:
+  capability_name: human_input_demo
+  capability_type: mutating
+  sample_invocation:
+    account_id: $json:primary.checking_id
+  validated: false
+  validation_skip_reason: requires_human_input
+  discovered_by_model: claude-sonnet-4-6
+  target_app_hint: parabank.parasoft.com
+parameters:
+  type: object
+  properties:
+    account_id:
+      type: string
+  required:
+  - account_id
+captures:
+- name: account_type
+  type: string
+  source_step: step_04
+  source:
+    locator:
+      strategy: css
+      css: body
+    extract:
+      pattern: CHECKING
+      from: text
+      all: false
+  export: true
+- name: balance
+  type: string
+  source_step: step_04
+  source:
+    locator:
+      strategy: css
+      css: body
+    extract:
+      pattern: \$[\d,]+\.\d{2}
+      from: text
+      all: false
+  export: true
+- name: available
+  type: string
+  source_step: step_04
+  source:
+    locator:
+      strategy: css
+      css: body
+    extract:
+      pattern: \$[\d,]+\.\d{2}
+      from: text
+      all: false
+  export: true
+steps:
+- id: step_01
+  metadata:
+    escalation_hint: Enter your username into the login form to begin signing in to
+      ParaBank
+  action: human_input
+  prompt: Please type your username into the Username field on the ParaBank login
+    page. Do NOT click Log In.
+  reason: credential_request
+  timeout_ms: 60000
+- id: step_02
+  action: click
+  locator:
+    strategy: role_name
+    role: button
+    name: Log In
+- id: step_03
+  checkpoint:
+    success:
+      required_phrases:
+      - Account Details
+      - 'Account Type:'
+      - 'Balance:'
+      - 'Account Number:'
+      target: '#rightPanel'
+    wait_ms: 5000
+    poll_interval_ms: 500
+  metadata:
+    escalation_hint: Open the checking account's activity page to view its details
+      and balance
+  action: navigate
+  url: https://parabank.parasoft.com/parabank/activity.htm?id={{account_id}}
+- id: step_04
+  checkpoint:
+    success:
+      required_phrases:
+      - '{{account_type}}'
+      target: '#rightPanel'
+    wait_ms: 5000
+    poll_interval_ms: 500
+  metadata:
+    escalation_hint: Read the account details table to retrieve the current balance
+      and confirm the account type
+  action: read_text
+  locator:
+    strategy: role_nth
+    role: table
+    index: 0

@@ -1,0 +1,2 @@
+Seeded fresh ParaBank test accounts -> I:\cs_mtal\job_application_project\interfaceai\test_data\parabank_credentials.json
+  primary user: itfai_1cf417a9  checking: 16785  savings: 16896

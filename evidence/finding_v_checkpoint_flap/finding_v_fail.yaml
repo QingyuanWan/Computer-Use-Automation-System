@@ -1,0 +1,92 @@
+version: 0.1.0
+metadata:
+  capability_name: manual_read
+  capability_type: read
+  sample_invocation:
+    username: $json:primary.username
+    password: $json:primary.password
+    account_id: $json:primary.checking_id
+  validated: false
+  discovered_by_model: claude-sonnet-4-6
+  target_app_hint: parabank.parasoft.com
+  state_verified: true
+parameters:
+  type: object
+  properties:
+    username:
+      type: string
+      sensitive: true
+    password:
+      type: string
+      sensitive: true
+    account_id:
+      type: string
+  required:
+  - account_id
+  - password
+  - username
+captures:
+- name: account_type
+  type: string
+  source_step: step_03
+  source:
+    locator:
+      strategy: css
+      css: body
+    extract:
+      pattern: CHECKING
+      from: text
+      all: false
+  export: true
+- name: balance
+  type: string
+  source_step: step_03
+  source:
+    locator:
+      strategy: css
+      css: body
+    extract:
+      pattern: \$[\d,]+\.\d{2}
+      from: text
+      all: false
+  export: true
+steps:
+- id: step_01_0
+  action: type_text
+  locator:
+    strategy: role_nth
+    role: textbox
+    index: 0
+  value: '{{username}}'
+- id: step_01_1
+  action: type_text
+  locator:
+    strategy: role_nth
+    role: textbox
+    index: 1
+  value: '{{password}}'
+- id: step_02
+  action: click
+  locator:
+    strategy: role_name
+    role: button
+    name: Log In
+- id: step_03
+  checkpoint:
+    success:
+      required_phrases:
+      - Account Details
+      - 'Account Type: {{account_type}}'
+      - 'Balance: {{balance}}'
+      target: '#rightPanel'
+    expected_outcomes:
+    - name: malformed_account_rejected
+      required_phrases:
+      - 'Could not find account # notanumber'
+    wait_ms: 5000
+    poll_interval_ms: 500
+  metadata:
+    escalation_hint: Open the checking account's activity page to verify its account
+      type and current balance
+  action: navigate
+  url: https://parabank.parasoft.com/parabank/activity.htm?id={{account_id}}

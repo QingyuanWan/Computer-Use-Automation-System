@@ -1,0 +1,45 @@
+{
+  "id": "msg_011CeNpcKQiKAh91DWCb27uy",
+  "container": null,
+  "content": [
+    {
+      "citations": null,
+      "text": "I'm logged in. Now let me navigate to the \"Request Loan\" page.",
+      "type": "text"
+    },
+    {
+      "id": "toolu_013nwrgLkvoNqiJAVKGGf8DL",
+      "caller": {
+        "type": "direct"
+      },
+      "input": {
+        "locator": {
+          "role": "link",
+          "name": "Request Loan"
+        }
+      },
+      "name": "click",
+      "type": "tool_use"
+    }
+  ],
+  "model": "claude-sonnet-4-6",
+  "role": "assistant",
+  "stop_details": null,
+  "stop_reason": "tool_use",
+  "stop_sequence": null,
+  "type": "message",
+  "usage": {
+    "cache_creation": {
+      "ephemeral_1h_input_tokens": 0,
+      "ephemeral_5m_input_tokens": 1068
+    },
+    "cache_creation_input_tokens": 1068,
+    "cache_read_input_tokens": 5301,
+    "inference_geo": "global",
+    "input_tokens": 1,
+    "output_tokens": 84,
+    "output_tokens_details": null,
+    "server_tool_use": null,
+    "service_tier": "standard"
+  }
+}
