@@ -11,7 +11,8 @@ server-rendered banking sandbox.
 - **Python 3.10+** (developed and tested on 3.12.5).
 - Install:
   ```bash
-  git clone <repo-url> && cd interfaceai      # <repo-url> is a PLACEHOLDER — replace at publish
+  git clone https://github.com/QingyuanWan/Computer-Use-Automation-System.git
+  cd Computer-Use-Automation-System
   python -m venv .venv && . .venv/bin/activate          # Windows: .venv\Scripts\Activate.ps1
   pip install -r requirements.txt && playwright install chromium
   cp .env.example .env                                   # PowerShell: Copy-Item .env.example .env
