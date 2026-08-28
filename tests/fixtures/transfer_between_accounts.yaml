@@ -1,0 +1,78 @@
+version: "0.1.0"
+
+metadata:
+  capability_name: transfer_between_accounts
+  capability_type: write               # login prologue stripped; type_text amount + submit -> write (ADR-005 Gap #0)
+  sample_invocation:                   # caller_parameters used at discovery, reused by the gate (ADR-9)
+    username: "itfai_primary"          # a seeded registry user (value lives in .env; test data, §3.4/§4)
+    password: "..."                    # registry credential (from .env; redacted in logs)
+    from_account_id: "12345"           # a pre-existing seeded account id (registry)
+    to_account_id: "12346"
+    amount: "25"
+  validated: true
+  created_at: "2026-08-16T00:00:00Z"
+  discovered_by_model: claude-sonnet-4-6
+  target_app_hint: parabank
+
+parameters:
+  type: object
+  properties:
+    username:        { type: string }
+    password:        { type: string }
+    from_account_id: { type: string }
+    to_account_id:   { type: string }
+    amount:          { type: number }
+  required: [username, password, from_account_id, to_account_id, amount]
+
+captures: []                           # ids are supplied as parameters; no runtime discovery needed
+                                       # (find_matching NOT used here — see §11 re: instruction wording)
+
+steps:
+  # --- login prologue (excluded from capability_type inference, ADR-005 Gap #0) ---
+  - id: fill_login_username
+    action: type_text
+    locator:
+      strategy: role_nth
+      role: textbox
+      index: 0                         # login username is page-wide nth 0 (fixture_discovery finding)
+      fallbacks: [ { strategy: css_id, css: "input[name='username']" } ]
+    value: "{{username}}"
+  - id: fill_login_password
+    action: type_text
+    locator: { strategy: role_nth, role: textbox, index: 1, fallbacks: [ { strategy: css_id, css: "input[name='password']" } ] }
+    value: "{{password}}"
+  - id: click_login
+    action: click
+    locator: { strategy: role_name, role: button, name: "Log In" }
+
+  # --- capability body ---
+  - id: goto_transfer
+    action: click
+    locator: { strategy: role_name, role: link, name: "Transfer Funds" }
+  - id: fill_amount
+    action: type_text
+    locator: { strategy: css_id, css: "#amount" }
+    value: "{{amount}}"
+  - id: select_from
+    action: type_text                  # <select> -> select_option
+    locator: { strategy: css_id, css: "#fromAccountId" }
+    value: "{{from_account_id}}"
+  - id: select_to
+    action: type_text
+    locator: { strategy: css_id, css: "#toAccountId" }
+    value: "{{to_account_id}}"
+
+  - id: submit_transfer
+    action: click
+    locator: { strategy: role_name, role: button, name: "Transfer" }
+    checkpoint:
+      success:
+        required_phrases:
+          - "Transfer Complete!"
+          - "has been transferred from account #{{from_account_id}} to account #{{to_account_id}}"
+          # NOTE: the amount ("$25.00") is intentionally omitted from the phrase — typed `25` vs displayed
+          # `$25.00` does not reliably reverse-parameterize (ADR-005 Gap #2); the 5-digit ids do.
+        target: "#rightPanel"
+      expected_outcomes: []            # empty: mutating capability, no failure-injection (ADR-005 §8)
+      wait_ms: 5000
+      poll_interval_ms: 500

@@ -254,8 +254,8 @@ def test_print_accounts_table_formats_rows(capsys):
 # ---------------- phaseB escalation-hint roundtrip ----------------
 
 def test_phaseb_artifact_hint_roundtrips_without_double_prefix():
-    art = ArtifactStorage(Path("test_artifacts")).load_from_path(
-        Path("test_artifacts/phaseB_escalation_test.yaml"))
+    _fixtures = Path(__file__).resolve().parents[1] / "fixtures"
+    art = ArtifactStorage(_fixtures).load_from_path(_fixtures / "phaseB_escalation_test.yaml")
     step = next(s for s in art.steps if s.id == "step_03_nav")
     assert step.metadata is not None
     hint = step.metadata.escalation_hint

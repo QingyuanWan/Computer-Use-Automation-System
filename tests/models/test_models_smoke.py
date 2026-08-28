@@ -7,7 +7,6 @@ Scope (deliberately shallow — deeper coverage is a later phase):
 """
 from __future__ import annotations
 
-import re
 from pathlib import Path
 
 import pytest
@@ -16,16 +15,14 @@ from pydantic import ValidationError
 
 from src.models import Artifact
 
-_DOC = Path(__file__).resolve().parents[2] / "docs" / "schema-draft.md"
+# The two schema-draft §10 worked examples (10.1 fixture, 10.2 transfer) are committed here as fixtures,
+# extracted verbatim, so the suite is self-contained — docs/schema-draft.md is an internal design draft and
+# is not shipped in the repository.
+_FIXTURES = Path(__file__).resolve().parents[1] / "fixtures"
 
 
-def _extract_yaml_block(header: str) -> str:
-    """Return the first ```yaml fenced block appearing after `header` in the schema draft."""
-    text = _DOC.read_text(encoding="utf-8")
-    start = text.index(header)
-    m = re.search(r"```yaml\n(.*?)```", text[start:], re.DOTALL)
-    assert m, f"no yaml block found after {header!r}"
-    return m.group(1)
+def _fixture(name: str) -> str:
+    return (_FIXTURES / name).read_text(encoding="utf-8")
 
 
 def _roundtrip(yaml_text: str) -> None:
@@ -38,16 +35,16 @@ def _roundtrip(yaml_text: str) -> None:
 # ---------------- round-trip tests (the two §10 worked examples) ----------------
 
 def test_roundtrip_fixture_example():
-    _roundtrip(_extract_yaml_block("### 10.1"))
+    _roundtrip(_fixture("register_user_and_open_savings.yaml"))
 
 
 def test_roundtrip_transfer_example():
-    _roundtrip(_extract_yaml_block("### 10.2"))
+    _roundtrip(_fixture("transfer_between_accounts.yaml"))
 
 
 def test_fixture_example_shape():
     """Sanity: the fixture parses to the expected high-level shape."""
-    art = Artifact.model_validate(yaml.safe_load(_extract_yaml_block("### 10.1")))
+    art = Artifact.model_validate(yaml.safe_load(_fixture("register_user_and_open_savings.yaml")))
     assert art.metadata.capability_name == "register_user_and_open_savings"
     assert art.metadata.capability_type.value == "mutating"
     assert {c.name for c in art.captures} == {"checking_account_id", "account_ids", "savings_account_id"}
@@ -58,7 +55,7 @@ def test_fixture_example_shape():
 
 def test_transfer_sample_invocation_targets_exist():
     """Cross-field sanity (ADR-9): every sample_invocation key is a declared parameter of the capability."""
-    art = Artifact.model_validate(yaml.safe_load(_extract_yaml_block("### 10.2")))
+    art = Artifact.model_validate(yaml.safe_load(_fixture("transfer_between_accounts.yaml")))
     params = set(art.parameters.properties.keys())
     assert art.metadata.sample_invocation is not None
     assert set(art.metadata.sample_invocation.keys()) <= params

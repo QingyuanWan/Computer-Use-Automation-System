@@ -1,0 +1,105 @@
+version: "0.1.0"
+
+metadata:
+  capability_name: register_user_and_open_savings
+  capability_type: mutating          # no login prologue; creates a user + account -> mutating (ADR-005 Gap #0)
+  validated: true                     # set by the auto-replay validation gate (ADR-006)
+  created_at: "2026-08-16T00:00:00Z"
+  discovered_by_model: claude-sonnet-4-6
+  target_app_hint: parabank
+  # no sample_invocation: self-contained fixture, uses generate markers only (ADR-9)
+
+parameters:
+  type: object
+  properties:
+    username:
+      type: string
+      generate: unique_string         # synthesized fresh per run (ADR-006 + fixture_discovery Q9)
+      export: true                    # PROVISIONAL param-export (§11)
+    password:
+      type: string
+      default: "Pass1234!"
+      export: true                    # PROVISIONAL param-export; never rendered -> not a capture (§11)
+  required: [username]
+
+captures:
+  - name: checking_account_id
+    type: string
+    source_step: read_overview_initial
+    source:
+      locator: { strategy: href_pattern, href_pattern: "activity.htm?id=" }
+      extract: { pattern: "id=(\\d+)", from: "href" }
+    export: true
+  - name: account_ids
+    type: string[]                    # list capture (ADR-006 array requirement); production via all:true is PROVISIONAL (§11)
+    source_step: read_overview_after_open
+    source:
+      locator: { strategy: href_pattern, href_pattern: "activity.htm?id=" }
+      extract: { pattern: "id=(\\d+)", from: "href", all: true }
+  - name: savings_account_id
+    type: string
+    source_step: resolve_savings_account
+    export: true
+
+steps:
+  # --- registration form (11 fields; unlabeled textboxes at page-wide nth 2..12, per fixture_discovery) ---
+  - { id: fill_first_name, action: type_text, locator: { strategy: role_nth, role: textbox, index: 2 },  value: "Test" }
+  - { id: fill_last_name,  action: type_text, locator: { strategy: role_nth, role: textbox, index: 3 },  value: "User" }
+  - { id: fill_street,     action: type_text, locator: { strategy: role_nth, role: textbox, index: 4 },  value: "1 Test St" }
+  - { id: fill_city,       action: type_text, locator: { strategy: role_nth, role: textbox, index: 5 },  value: "Testville" }
+  - { id: fill_state,      action: type_text, locator: { strategy: role_nth, role: textbox, index: 6 },  value: "CA" }
+  - { id: fill_zip,        action: type_text, locator: { strategy: role_nth, role: textbox, index: 7 },  value: "90001" }
+  - { id: fill_phone,      action: type_text, locator: { strategy: role_nth, role: textbox, index: 8 },  value: "5550001111" }
+  - { id: fill_ssn,        action: type_text, locator: { strategy: role_nth, role: textbox, index: 9 },  value: "123-45-6789" }
+  - { id: fill_username,   action: type_text, locator: { strategy: role_nth, role: textbox, index: 10 }, value: "{{username}}" }
+  - { id: fill_password,   action: type_text, locator: { strategy: role_nth, role: textbox, index: 11 }, value: "{{password}}" }
+  - { id: fill_confirm,    action: type_text, locator: { strategy: role_nth, role: textbox, index: 12 }, value: "{{password}}" }
+
+  - id: submit_registration
+    action: click
+    locator: { strategy: role_name, role: button, name: "Register" }
+    checkpoint:
+      success:
+        required_phrases:
+          - "Welcome {{username}}"
+          - "Your account was created successfully. You are now logged in."
+        target: "#rightPanel"
+      wait_ms: 5000
+      poll_interval_ms: 500
+
+  - id: read_overview_initial          # one account exists here -> checking_account_id
+    action: navigate
+    url: "overview.htm"
+
+  - id: goto_open_account
+    action: click
+    locator: { strategy: role_name, role: link, name: "Open New Account" }
+
+  - id: select_savings                 # type into <select> -> select_option (executor translation)
+    action: type_text
+    locator: { strategy: css_id, css: "#type" }
+    value: "SAVINGS"
+
+  - id: submit_open_account
+    action: click
+    locator: { strategy: role_name, role: button, name: "Open New Account" }
+
+  - id: read_overview_after_open       # stable-surface verification (ADR-005 async-tolerant targeting), not #newAccountId
+    action: navigate
+    url: "overview.htm"
+
+  - id: resolve_savings_account        # find_matching: pick the account whose detail says SAVINGS
+    action: find_matching
+    candidates: account_ids
+    probe:
+      action: navigate
+      locator: { strategy: url_template, url_template: "activity.htm?id={{candidate}}" }
+      checkpoint:
+        success: { required_phrases: ["Account Type:", "SAVINGS"], target: "#rightPanel" }
+    capture:
+      variable: savings_account_id
+      value_from: candidate
+      export: true
+
+# Return contract (exported): { username, password, checking_account_id, savings_account_id }
+# NOTE: username/password are exported PARAMETERS (provisional, §11); the two ids are exported captures.

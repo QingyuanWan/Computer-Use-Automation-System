@@ -1,0 +1,57 @@
+version: "0.1.0"
+metadata:
+  capability_name: phaseB_escalation_test
+  capability_type: read
+  validated: false
+  discovered_by_model: manual_authoring
+  created_at: "2026-08-15T22:00:00Z"
+  target_app_hint: parabank
+parameters:
+  type: object
+  properties:
+    username:
+      type: string
+      sensitive: true
+    password:
+      type: string
+      sensitive: true
+    account_id:
+      type: string
+  required:
+  - username
+  - password
+  - account_id
+captures: []
+steps:
+- id: step_01_login_user
+  action: type_text
+  locator:
+    strategy: role_nth
+    role: textbox
+    index: 0
+  value: "{{username}}"
+- id: step_01_login_pass
+  action: type_text
+  locator:
+    strategy: role_nth
+    role: textbox
+    index: 1
+  value: "{{password}}"
+- id: step_02_click_login
+  action: click
+  locator:
+    strategy: role_name
+    role: button
+    name: Log In
+- id: step_03_nav
+  action: navigate
+  url: https://parabank.parasoft.com/parabank/activity.htm?id={{account_id}}
+  metadata:
+    escalation_hint: "Navigating to the account activity page. If timeout persists, check for browser dialog popups (Basic Auth) or session expiry."
+  checkpoint:
+    success:
+      required_phrases:
+      - "ZEBRA_UNICORN_KANGAROO_NEVER_MATCHES"
+      target: body
+    wait_ms: 5000
+    poll_interval_ms: 500
