@@ -1,4 +1,4 @@
-# interfaceai
+# Computer-Use Automation System
 
 **Record once, replay many** — let an AI agent operate legacy back-office systems that expose **no API**. An LLM
 explores a goal once against the live UI (discovery) and records it as a typed, replayable artifact; production

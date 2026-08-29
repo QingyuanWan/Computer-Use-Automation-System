@@ -1,8 +1,9 @@
 # REPORT
 
-interface.ai is a backend integration layer letting an AI agent operate legacy back-office web apps with no API,
-record-once/replay-many: an LLM explores a goal once against the live surface (discovery), the successful path
-compiles into a typed serialized artifact, and production replays it deterministically with no LLM in the loop.
+A computer-use automation system for interface.ai's take-home: it lets an AI agent operate legacy back-office web
+apps with no API, on a record-once/replay-many model — an LLM explores a goal once against the live surface
+(discovery), the successful path compiles into a typed serialized artifact, and production replays it
+deterministically with no LLM in the loop.
 The reference target is ParaBank (parabank.parasoft.com), a server-rendered banking sandbox with inconsistent
 element ids, AJAX-populated tables, and same-URL success states.
 
