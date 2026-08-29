@@ -94,7 +94,8 @@ itself with no one driving — it force-fails a checkpoint and escalates — rep
 python -m src.cli replay --artifact-file tests/fixtures/phaseB_escalation_test.yaml \
     --caller-params-from-json username=primary.username password=primary.password account_id=primary.checking_id
 ```
-It pauses at the in-browser panel; click **Abort** or press **Ctrl-C** to end it.
+It pauses at the in-browser panel; click **Abort** or press **Ctrl-C** to end it. (A first attempt can fail with
+a transient `net::ERR_ABORTED` ParaBank navigation abort — just re-run.)
 
 **Step 5 — a business outcome (a result, not a crash).** The captured contract ships in
 `evidence/lookup_checking_balance_replay_20260827_051820/` — a system-emitted `cli_summary.json`, verbatim
