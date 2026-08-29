@@ -73,7 +73,7 @@ in the submitted evidence, a pipeline artifact bound `new_loan_account_number` t
 new loan (`evidence/my_loan_replay_20260827_165252/`). *Never return unverified data* and *never lose the result
 of an irreversible action* pull against each other; today the system chooses the first, and the evidence
 screenshot — holding the value the capture missed — is the only bridge back. The corrected capture does
-reconcile: on a live `request_loan` its exported value matched real account state via `--show-accounts`
+reconcile: on a live `request_loan` the exported id was `19671` — the new loan account, not the funding account — and `--show-accounts` showed checking fall $415.50 → $315.50, exactly the $100 down-payment
 (`evidence/request_loan_replay_20260827_224901/`).
 
 The deeper production question: when an action was submitted and its result is unconfirmed, did it commit? The
@@ -143,7 +143,7 @@ planned escalation at a `human_input` step (single Done); a safety violation is 
 escalated. Discovery records each resolved intervention as a `human_input` step, so a flow that needed a human
 once re-triggers that pause on replay (ADR-007). Take-over is two-phase — the human acts in planned mode, then on
 Done the engine re-observes and re-evaluates the checkpoint once; every wait is bounded (unattended →
-`stub_unavailable`). Four escalation scenarios are verified live (`evidence/phaseB_ci_run_test*/`).
+`stub_unavailable`). Four escalation scenarios are verified live — reactive abort, three-cycle exhaustion, no-credential discovery, and takeover across navigation (`evidence/phaseB_ci_run_test*/`).
 
 Recording what the human did is the largest §3.6 gap: today privacy is achieved by observing nothing during
 takeover, which also records nothing beyond boundary metadata (step, reason, outcome, duration) and an optional
