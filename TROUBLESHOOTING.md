@@ -9,9 +9,8 @@ Operational edge cases for running the demo against the live ParaBank sandbox. D
 - **ParaBank test accounts are auto-managed** in `test_data/parabank_credentials.json` (gitignored). The
   launcher seeds them on first run; `python scripts/seed_parabank_accounts.py` (re)seeds manually.
 - **`--caller-params-from-json KEY=JSON.PATH`** binds caller parameters to dot-paths in that JSON (e.g.
-  `account_id=primary.checking_id`). It is the only credential source — there is no env-var path (the old
-  `$env:`/`--caller-params-from-env` bridge was removed). A missing file or an absent dot-path fails fast with
-  a message pointing at `python scripts/seed_parabank_accounts.py`.
+  `account_id=primary.checking_id`). It is the only credential source — there is no env-var path. A missing
+  file or an absent dot-path fails fast with a message pointing at `python scripts/seed_parabank_accounts.py`.
 - **ParaBank purges accounts every ~30–60 min.** `run_capability.py` runs a login pre-flight before each
   replay and **auto-reseeds** if the accounts no longer authenticate. The lower-level `python -m src.cli`
   does **not** auto-reseed — re-run the seed script or use `run_capability.py`.
@@ -20,14 +19,17 @@ Operational edge cases for running the demo against the live ParaBank sandbox. D
 
 ## Mutating capabilities
 
-`transfer_funds` and `request_loan` are **mutating**: each replay changes real state (transfer_funds moves a
-real $10 checking→savings; request_loan opens a loan). A mutating replay is **refused by default** — pass
-`--i-understand-mutating` to consent (the runtime safety gate blocks it otherwise, on both
-`run_capability.py` and `python -m src.cli replay`; `run_capability.py` also prints a `[WARN]` describing the
-effect). After ~10 transfers a freshly-seeded checking account may run low. Auto-reseed triggers only on
-login/stale-credential failures, **not** on resource exhaustion (insufficient funds is a legitimate business
-outcome, surfaced rather than hidden). Verify a transfer with `--show-accounts` or by replaying
-`lookup_checking_balance`.
+`transfer_funds`, `request_loan`, and `human_input_demo` are **mutating**: each replay changes real state or
+hands control to a person (transfer_funds moves a real $10 checking→savings; request_loan opens a loan;
+human_input_demo pauses for a human to act in the live session, so it is treated as mutating by default). A
+mutating replay is **refused by default** — pass `--i-understand-mutating` to consent (the runtime safety gate
+blocks it otherwise, on both `run_capability.py` and `python -m src.cli replay`; `run_capability.py` also prints
+a `[WARN]` describing the effect). Resource exhaustion is driven by `request_loan`, not transfers: each loan
+takes a $100 down-payment from checking, so after roughly four runs a freshly-seeded account (~$425) is drained
+and a further loan is denied; `transfer_funds` moves only $10 per run, so it takes many more to matter.
+Auto-reseed triggers only on login/stale-credential failures, **not** on resource exhaustion (insufficient
+funds is a legitimate business outcome, surfaced rather than hidden). Verify a transfer with `--show-accounts`
+or by replaying `lookup_checking_balance`.
 
 ## Runtime
 
@@ -36,9 +38,9 @@ outcome, surfaced rather than hidden). Verify a transfer with `--show-accounts` 
 - **`error: discovery needs an Anthropic API key`** — a `--goal` (discovery) command without
   `ANTHROPIC_API_KEY` in `.env`. Replay (`--artifact-name`) needs no key.
 - **Seed script hangs / `seeding failed`** — ParaBank may be slow or briefly down; wait a minute and retry.
-- **See the escalation/takeover panel** — replay the bundled fixture (it force-fails a checkpoint):
+- **See the escalation/takeover panel** — replay the escalation test fixture (it force-fails a checkpoint):
   ```
-  python -m src.cli replay --artifact-file test_artifacts/phaseB_escalation_test.yaml \
+  python -m src.cli replay --artifact-file tests/fixtures/phaseB_escalation_test.yaml \
       --caller-params-from-json username=primary.username password=primary.password \
           account_id=primary.checking_id
   ```
