@@ -26,7 +26,9 @@ server-rendered banking sandbox.
 
 Everything in this section runs without an Anthropic key. **Keyless is not offline, though** — every command
 here still drives the live ParaBank site over the network; only the model API key is optional. Test accounts are
-seeded automatically into a gitignored registry (`test_data/parabank_credentials.json`); you never edit them. **ParaBank purges seeded
+seeded automatically into a gitignored registry (`test_data/parabank_credentials.json`); you never edit them — the
+launcher seeds that real file, and the committed `test_data/parabank_credentials.json.example` beside it is only a
+shape reference (do not copy it). **ParaBank purges seeded
 accounts every 30–60 minutes** — `run_capability.py` runs a login pre-flight and auto-reseeds when they go stale
 (the lower-level `python -m src.cli` does *not*, which is why the launcher steps below keep the raw-CLI ones on
 fresh credentials).
@@ -155,6 +157,15 @@ All via `python scripts/run_capability.py` (the raw path is `python -m src.cli {
 **Bundled capabilities:** `lookup_checking_balance` (read), `transfer_funds` (mutating — $10 checking→savings),
 `request_loan` (mutating — $500 loan, returns the new loan account number), `human_input_demo` (mutating —
 pauses for a person).
+
+**Optional — customizing the safety allowlist.** The runtime safety gate restricts which **domains** and **action
+types** the agent may drive. By default it uses the in-code ParaBank policy, so **everything above works with no
+config file.** To override it, copy the template to the repo root, where the loader looks for `safety_policy.json`:
+```bash
+cp safety_policy.example.json safety_policy.json   # PowerShell: Copy-Item safety_policy.example.json safety_policy.json
+```
+then edit its `allowed_domains` / `allowed_actions`. If that file is absent, malformed, or empty the gate **fails
+safe** — it falls back to the narrow in-code default and never silently widens the allowlist.
 
 Operational detail — ParaBank quirks, reseeding, credential registry — is in
 **[TROUBLESHOOTING.md](TROUBLESHOOTING.md)**. Design is in **[REPORT.md](REPORT.md)**. Released under the MIT
