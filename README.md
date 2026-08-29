@@ -21,6 +21,7 @@ server-rendered banking sandbox.
   display is required; there is no headless mode.
 - **Network:** every command reaches ParaBank; only discovery (below) reaches the Anthropic API. Replay needs no
   API key — leave `.env` empty unless you run discovery.
+- **Linux:** if `playwright install chromium` reports missing system libraries, run `playwright install-deps`.
 
 ## Keyless walkthrough — no API key required
 
@@ -31,7 +32,9 @@ launcher seeds that real file, and the committed `test_data/parabank_credentials
 shape reference (do not copy it). **ParaBank purges seeded
 accounts every 30–60 minutes** — `run_capability.py` runs a login pre-flight and auto-reseeds when they go stale
 (the lower-level `python -m src.cli` does *not*, which is why the launcher steps below keep the raw-CLI ones on
-fresh credentials).
+fresh credentials). To reseed manually at any point — the escape hatch when a raw-CLI run's accounts have gone
+stale — run `python scripts/seed_parabank_accounts.py`. A caller-param pointing at a missing registry file or an
+absent dot-path fails fast with a message pointing at that same seed script.
 
 **Step 1 — see the accounts (this also seeds the registry).**
 ```bash
@@ -39,7 +42,8 @@ python scripts/run_capability.py --show-accounts
 ```
 A Chromium window opens, the launcher seeds/refreshes the accounts (you may see a `pre-flight: credentials
 refreshed` line), and it prints the checking / savings / loan balances. Run this first — it primes the registry
-so every later command has valid credentials.
+so every later command has valid credentials. (If seeding hangs or prints `seeding failed`, ParaBank is briefly
+slow or down — wait a minute and retry.)
 
 **Step 2 — deterministic replay of a read capability.**
 ```bash
@@ -59,8 +63,11 @@ optional.** If you want to see the mutation succeed, opt in explicitly to move $
 ```bash
 python scripts/run_capability.py --artifact-name transfer_funds --i-understand-mutating
 ```
-Expected: `SUCCESS`, exit 0 — confirm with `--show-accounts`. Each consented run moves real state; if repeated
-runs leave the checking balance low, re-run **step 1** to reseed a fresh account.
+Expected: `SUCCESS`, exit 0 — confirm with `--show-accounts`. Each consented run changes real state. Resource
+exhaustion comes from `request_loan`, not transfers: each loan takes a $100 down-payment, so roughly four runs
+drain a freshly-seeded ~$425 account and a further loan is denied, while `transfer_funds` moves only $10 and
+takes many more. Auto-reseed fires on stale credentials, **not** on resource exhaustion — insufficient funds is a
+legitimate business outcome, surfaced rather than hidden; to start fresh, re-run **step 1**.
 
 **Step 4 — human-in-the-loop (you drive the browser).** `human_input_demo` pauses for a person to sign in. It
 must be the **raw CLI** (the launcher is non-interactive and won't wait), and because a `human_input` step is
@@ -80,6 +87,14 @@ A Chromium window opens on the ParaBank login page with an in-browser panel (a s
 prompt asks you to type both the username and password into the login form — enter the two values you just read.
 **Do not click Log In** — click **Done**. The system then clicks Log In, navigates, and reads the account;
 expected terminal: `status=success`.
+
+*Seeing the panel without a person:* step 4 needs a human to click Done. To see the escalation/takeover panel
+itself with no one driving — it force-fails a checkpoint and escalates — replay the escalation test fixture:
+```bash
+python -m src.cli replay --artifact-file tests/fixtures/phaseB_escalation_test.yaml \
+    --caller-params-from-json username=primary.username password=primary.password account_id=primary.checking_id
+```
+It pauses at the in-browser panel; click **Abort** or press **Ctrl-C** to end it.
 
 **Step 5 — a business outcome (a result, not a crash).** The captured contract ships in
 `evidence/lookup_checking_balance_replay_20260827_051820/` — a system-emitted `cli_summary.json`, verbatim
@@ -104,7 +119,9 @@ auto-reseed a purged account.)
 ## Discovery — the one part that needs an Anthropic API key
 
 Put your key in `.env` (`ANTHROPIC_API_KEY=…`; get one at <https://console.anthropic.com/>). Discovery drives
-ParaBank live to author a new artifact, then replays it to validate.
+ParaBank live to author a new artifact, then replays it to validate. (A `--goal` command with no
+`ANTHROPIC_API_KEY` set fails fast with `error: discovery needs an Anthropic API key`; plain `--artifact-name`
+replay needs no key.)
 
 ```bash
 python scripts/run_capability.py --goal "Look up the checking balance" \
@@ -167,6 +184,4 @@ cp safety_policy.example.json safety_policy.json   # PowerShell: Copy-Item safet
 then edit its `allowed_domains` / `allowed_actions`. If that file is absent, malformed, or empty the gate **fails
 safe** — it falls back to the narrow in-code default and never silently widens the allowlist.
 
-Operational detail — ParaBank quirks, reseeding, credential registry — is in
-**[TROUBLESHOOTING.md](TROUBLESHOOTING.md)**. Design is in **[REPORT.md](REPORT.md)**. Released under the MIT
-License.
+Design rationale is in **[REPORT.md](REPORT.md)**. Released under the MIT License.
